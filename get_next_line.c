@@ -12,71 +12,89 @@
 
 #include "get_next_line.h"
 
-char	*ft_line(char **buffer, char **stash)
+char	*ft_line(char **stash)
 {
 	char	*line;
-	int	i;
-	int	j;
-	int	stash_len;
+	char	*new_stash;
+	int		i;
+	int		j;
 
 	i = 0;
 	j = 0;
-	stash_len = ft_strlen(*stash);
-	while ((*buffer)[i] && (*buffer)[i] != '\n')
+	if (!*stash || !(*stash)[0])
+		return (NULL);
+	while ((*stash)[i] && (*stash)[i] != '\n')
 		i++;
-	line = (char *)malloc(stash_len + i + 1);
-	ft_strlcpy(line, *stash, (stash_len + i));
-	i = 0;
-	while ((*buffer)[i] != '\n')
-		line[stash_len++] = *buffer[i++];
-	line[stash_len] = '\n';
-	while ((*buffer)[i])
+	if ((*stash)[i] == '\n')
+		line = malloc(i + 2);
+	else
+		line = malloc(i + 1);
+	if (!line)
+		return (NULL);
+	while ((*stash)[j] && (*stash)[j] != '\n')
 	{
-		i++;
+		line[j] = (*stash)[j];
 		j++;
 	}
-	*stash = ft_substr(*buffer, ft_strlen(*buffer) - j, j);
-	i -= j;
-	j = 0;
-	while ((*buffer)[i] && (*stash)[j])
-		(*stash)[j++] = (*buffer)[i++];
+	if ((*stash)[j] == '\n')
+		line[j++] = '\n';
+	line[j] = '\0';
+	if ((*stash)[j])
+	{
+		new_stash = ft_strdup(&((*stash)[j]));
+		free(*stash);
+		*stash = new_stash;
+	}
+	else
+	{
+		free(*stash);
+		*stash = NULL;
+	}
 	return (line);
 }
 
 char	*get_next_line(int fd)
-{	
-	char	*buffer;
+{
 	static char	*stash;
+	char		*tmp;
+	char		*buffer;
+	char		*line;
 	ssize_t		rd;
 
-	stash = ft_calloc(1,1);
+	rd = 1;
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	buffer = (char *)malloc(BUFFER_SIZE + 1);
 	if (!buffer)
 		return (NULL);
-	while ((rd = read(fd, buffer, BUFFER_SIZE)) > 0)
-	{	
+	while (rd > 0)
+	{
+		rd = read(fd, buffer, BUFFER_SIZE);
+		if (rd == -1)
+		{
+			free(buffer);
+			return (NULL);
+		}
 		buffer[rd] = '\0';
-		if (ft_strchr(buffer, '\n'))
-			return (ft_line(&buffer, &stash));
-		stash = ft_strjoin(stash,buffer);
+		if (!stash)
+			stash = ft_strdup("");
+		tmp = ft_strjoin(stash, buffer);
+		free(stash);
+		stash = tmp;
+		if (ft_strchr(stash, '\n'))
+		{
+			free(buffer);
+			return (ft_line(&stash));
+		}
+	}
+	if (stash && *stash)
+	{
+		line = ft_strdup(stash);
+		free(stash);
+		stash = NULL;
+		free(buffer);
+		return (line);
 	}
 	free(buffer);
 	return (NULL);
-}
-
-int	main(void)
-{
-	int	fd;
-	char	*string;
-
-	fd = open("./test.txt", O_RDONLY);
-	string = get_next_line(fd);
-	while (string != NULL)
-	{
-		printf("%s",string);
-		string = get_next_line(fd);
-	}
-	return(0);
 }
