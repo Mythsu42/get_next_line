@@ -38,8 +38,8 @@ char	*ft_line(char **buffer, char **stash)
 	*stash = ft_substr(*buffer, ft_strlen(*buffer) - j, j);
 	i -= j;
 	j = 0;
-	while (buffer[i])
-		*stash[j] = (*buffer)[i];
+	while ((*buffer)[i] && (*stash)[j])
+		(*stash)[j++] = (*buffer)[i++];
 	return (line);
 }
 
