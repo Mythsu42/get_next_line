@@ -21,8 +21,10 @@ char	*ft_line(char **stash)
 
 	i = 0;
 	j = 0;
-	if (!*stash || !(*stash)[0])
+	if (!*stash || !**stash)
 		return (NULL);
+//	line = ft_substr(*stash, 0, (ft_strlen(*stash)
+//				- ft_strlen(ft_strchr(*stash, '\n')))+ 1);
 	while ((*stash)[i] && (*stash)[i] != '\n')
 		i++;
 	if ((*stash)[i] == '\n')
@@ -57,8 +59,8 @@ char	*get_next_line(int fd)
 {
 	static char	*stash;
 	char		*tmp;
-	char		*buffer;
 	char		*line;
+	char		*buffer;
 	ssize_t		rd;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
@@ -78,7 +80,6 @@ char	*get_next_line(int fd)
 		if (rd < 0)
 		{
 			free(buffer);
-			buffer = NULL;
 			if (stash)
 			{
 				free(stash);
@@ -93,7 +94,6 @@ char	*get_next_line(int fd)
 		free(stash);
 		stash = NULL;
 		free(buffer);
-		buffer = NULL;
 		stash = tmp;
 		if (ft_strchr(stash, '\n'))
 			return (ft_line(&stash));
