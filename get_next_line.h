@@ -28,6 +28,9 @@ char	*ft_strchr(const char *str, int c);
 char	*ft_strdup(const char *str);
 char	*get_next_line(int fd);
 char	*ft_line(char **stash);
+char	*stash_and_extract_line(char **stash, char *buffer);
+char	*return_last_line(char **stash);
 size_t	ft_strlen(const char *str);
+int		handle_error_read(ssize_t rd, char **buffer, char **stash);
 
 #endif

@@ -38,12 +38,25 @@ char	*stash_and_extract_line(char **stash, char *buffer)
 	char	*tmp;
 
 	if (!*stash)
+	{
 		*stash = ft_strdup("");
+		if (!*stash)
+		{
+			free(buffer);
+			return (NULL);
+		}
+	}
 	tmp = ft_strjoin(*stash, buffer);
+	if (!tmp)
+	{
+		free(*stash);
+		free(buffer);
+		*stash = NULL;
+		return (NULL);
+	}
 	free(*stash);
-	*stash = NULL;
-	free(buffer);
 	*stash = tmp;
+	free(buffer);
 	if (ft_strchr(*stash, '\n'))
 		return (ft_line(stash));
 	return (NULL);
